@@ -1,0 +1,4 @@
+
+
+This can be generated in a terminal with:
+> pip freeze > requirements.txt
