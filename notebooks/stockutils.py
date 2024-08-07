@@ -2,8 +2,8 @@ import os
 import pandas as pd
 
 
-DATA_FILE = 'AAPL_Advanced.csv'
-DATA_PATH = os.path.join("..","data", "raw", DATA_FILE)
+DEFAULT_DATA_FILE = 'AAPL_Advanced.csv'
+DATA_PATH = os.path.join("..","data", "raw")
 
 FEATURES_TO_USE = ['pct_Diff_from_6_day_SMA', 'Slope_6_day_SMA', 'Slope_4_day_SMA','CHLI_1Y', 'CHLI_1M', 'CHLI_2W',
        'CHLI_1W', 'ADV_Issues','ADV_Vol','ADV_Issues_Comp', 'ADV_Vol_Comp', 'ImpVol', 'daysToEarnings',
@@ -16,7 +16,7 @@ COLUMNS_OF_INTEREST = ['close','vix','2yr_Yield', '10yr_Yield']
 
 TARGETS = ["ExactBestMajorReversals","DayAfterMajorReversal","4_days_ahead_TARGET", "5pct_20day_TARGET","5pct_10day_TARGET", "2_5pct_5day_TARGET" ] 
 
-def import_stock_csv(filename, data_path=DATA_PATH, columnsToUse=FEATURES_TO_USE, target="DayAfterMajorReversal", colsofinterest=COLUMNS_OF_INTEREST):
+def import_stock_csv(filename=DEFAULT_DATA_FILE, data_path=DATA_PATH, columnsToUse=FEATURES_TO_USE, target="DayAfterMajorReversal", colsofinterest=COLUMNS_OF_INTEREST, debug_counter = False):
     """load the stock data
 
     Not the most flexible import, but will do for this case... 
@@ -38,7 +38,8 @@ def import_stock_csv(filename, data_path=DATA_PATH, columnsToUse=FEATURES_TO_USE
     -------
     """
     #read the csv file
-    stockdf = pd.read_csv(DATA_PATH, index_col=0)
+    data_filepath = os.path.join(data_path, filename)
+    stockdf = pd.read_csv(data_filepath, index_col=0)
 
     # update data types for targets (all categorical)
     stockdf.ExactBestMajorReversals = stockdf.ExactBestMajorReversals.astype("category")
@@ -97,6 +98,11 @@ def import_stock_csv(filename, data_path=DATA_PATH, columnsToUse=FEATURES_TO_USE
     targetdf.drop(columns=[f"{target}"], inplace=True)
     #targetdf = targetdf.rename(columns={f"{target}":'Target'}, inplace=True)
     interestdf = stockdf[colsofinterest]
+
+    if debug_counter:
+        featuresdf['counter'] = stockdf['counter']
+        targetdf['counter'] = stockdf['counter']
+        interestdf['counter'] = stockdf['counter']
 
     return featuresdf, targetdf, interestdf
 
